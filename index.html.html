@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAP OF KINDNESS | BREAK THE SILENCE</title>
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+<style>
+:root{--navy:#17324d;--teal:#168b83;--gold:#f2b84b;--paper:#f4f8f7;--ink:#233746}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,sans-serif}
+header{background:linear-gradient(120deg,#17324d,#168b83);color:#fff;text-align:center;padding:28px 18px}
+.tag{font-size:12px;letter-spacing:2px;font-weight:bold;opacity:.9}h1{font-size:clamp(30px,5vw,50px);margin:10px 0 4px;letter-spacing:1px}
+header p{max-width:780px;margin:10px auto;line-height:1.5}.slogan{color:#ffe4a8;font-weight:bold;letter-spacing:1px;margin-top:15px}
+.wrap{max-width:1250px;margin:22px auto;padding:0 16px}.intro{display:grid;grid-template-columns:1.3fr .7fr;gap:16px;margin-bottom:18px}
+.panel{background:#fff;border-radius:16px;padding:18px;box-shadow:0 4px 18px #17324d12}.panel h2{font-size:18px;margin:0 0 10px;color:var(--navy)}
+.panel p{line-height:1.55;margin:6px 0}.stat{font-size:32px;color:var(--teal);font-weight:bold}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px}
+#map{height:590px;width:100%;border-radius:16px;overflow:hidden;box-shadow:0 4px 18px #17324d18}
+form label{display:block;font-weight:bold;font-size:13px;margin:12px 0 5px}
+input,textarea,select{width:100%;padding:11px;border:1px solid #cbd7d9;border-radius:9px;font:inherit;background:#fff}
+textarea{min-height:82px;resize:vertical}button{border:0;border-radius:9px;background:var(--teal);color:white;padding:12px 16px;font-weight:bold;cursor:pointer;margin-top:12px}
+button.secondary{background:#e8f0ef;color:var(--navy);margin-left:5px}button:hover{filter:brightness(.95)}
+.hint{font-size:12px;color:#5d7078;line-height:1.45}
+#entries{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}
+.entry{background:#fff;border-left:4px solid var(--gold);border-radius:10px;padding:14px;box-shadow:0 3px 12px #17324d0d}
+.entry strong{display:block;color:var(--navy);margin-bottom:5px}.entry small{color:#61747b}
+.heart-marker{font-size:25px;line-height:30px;text-align:center;filter:drop-shadow(0 1px 2px #fff);cursor:pointer}
+.maplibregl-popup-content{font-family:Arial,sans-serif;line-height:1.5;border-radius:10px;padding:14px;max-width:280px}
+.maplibregl-popup-content b{color:var(--navy)}.maplibregl-ctrl-group{border-radius:9px!important}
+footer{text-align:center;padding:26px 15px;color:#60727a;font-size:13px}
+@media(max-width:850px){.intro,.layout{grid-template-columns:1fr}#map{height:470px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="tag">BREAK THE SILENCE • 3 SCHOOLS • 1 VOICE • 0 SPECTATORS</div>
+ <h1>MAP OF KINDNESS</h1>
+ <p>Ένας διαδραστικός παγκόσμιος χάρτης καλοσύνης, αποδοχής και συμπερίληψης. Σχολεία ενώνουν τις φωνές τους και αναλαμβάνουν μια κοινή υπόσχεση για ένα ασφαλές σχολικό περιβάλλον.</p>
+ <div class="slogan">ONE WORLD. MANY SCHOOLS. ONE PROMISE.</div>
+</header>
+<main class="wrap">
+ <section class="intro">
+  <div class="panel"><h2>Η ιδέα μας</h2>
+   <p>Κάθε σχολείο προσθέτει στον χάρτη τη δική του υπόσχεση και μια συγκεκριμένη πράξη καλοσύνης. Οι μαθητικές δεσμεύσεις γίνονται ένα κοινό μήνυμα κατά του εκφοβισμού.</p>
+   <p class="hint">Πάτησε σε μια καρδιά για να δεις τη δέσμευση ενός σχολείου. Για νέα καταχώριση, συμπλήρωσε τη φόρμα και κάνε κλικ στη θέση του σχολείου πάνω στον χάρτη.</p>
+  </div>
+  <div class="panel"><h2>Οι πρώτες φωνές</h2><div class="stat" id="count">3</div><p>σχολικές δεσμεύσεις στον χάρτη</p><p class="hint">Οι τρεις αρχικές καταχωρίσεις εγκαινιάζουν την πρωτοβουλία.</p></div>
+ </section>
+ <section class="layout">
+  <div>
+   <div id="map" aria-label="Παγκόσμιος διαδραστικός χάρτης"></div>
+   <div id="entries"></div>
+  </div>
+  <aside class="panel">
+   <h2>Πρόσθεσε τη φωνή του σχολείου σου</h2>
+   <p class="hint">Συμπλήρωσε τα στοιχεία και κάνε κλικ στον χάρτη για να επιλέξεις τη θέση του σχολείου.</p>
+   <form id="schoolForm">
+    <label for="school">Όνομα σχολείου</label><input id="school" required placeholder="π.χ. Gymnasium ...">
+    <label for="city">Πόλη και χώρα</label><input id="city" required placeholder="π.χ. Preveza, Greece">
+    <label for="promise">Η υπόσχεσή μας</label><textarea id="promise" required placeholder="We promise to..."></textarea>
+    <label for="action">Η πράξη καλοσύνης μας</label><textarea id="action" required placeholder="This school year, we will..."></textarea>
+    <label for="language">Γλώσσα μηνύματος</label><select id="language"><option>English</option><option>Ελληνικά</option><option>Other</option></select>
+    <p class="hint" id="coords">Θέση στον χάρτη: δεν έχει επιλεγεί.</p>
+    <button type="submit">Προσθήκη στον χάρτη</button>
+    <button type="button" class="secondary" id="export">Εξαγωγή καταχωρίσεων</button>
+   </form>
+   <p class="hint"><b>Σημείωση:</b> Ο χάρτης χρησιμοποιεί OpenFreeMap και MapLibre: χωρίς Google API Key, εγγραφή ή χρέωση για τη δημόσια υπηρεσία χαρτών. Οι καταχωρίσεις αποθηκεύονται σε αυτόν τον browser. Για να τις βλέπουν όλοι οι επισκέπτες χρειάζεται ξεχωριστή κοινόχρηστη βάση δεδομένων.</p>
+  </aside>
+ </section>
+</main>
+<footer>Χάρτης: OpenFreeMap • © OpenMapTiles • Δεδομένα: © OpenStreetMap contributors<br>BREAK THE SILENCE • MAP OF KINDNESS<br>ΜΙΛΑΩ • ΣΤΗΡΙΖΩ • ΣΥΝΕΡΓΑΖΟΜΑΙ</footer>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script>
+const initial=[
+ {school:"Γυμνάσιο Ζαλόγγου",city:"Αρχάγγελος, Πρέβεζα, Ελλάδα",lat:39.13,lng:20.75,promise:"Υποσχόμαστε να μη μένουμε θεατές και να στηρίζουμε όποιον χρειάζεται βοήθεια.",action:"Κανείς μόνος στο διάλειμμα: προσκαλούμε στην παρέα μας όσους μένουν μόνοι.",language:"Ελληνικά"},
+ {school:"Γενικό Λύκειο Καναλακίου",city:"Καναλλάκι, Πρέβεζα, Ελλάδα",lat:39.23,lng:20.60,promise:"We promise to respect differences and include everyone.",action:"Οργανώνουμε μαθητική δράση ευαισθητοποίησης κατά του αποκλεισμού.",language:"English"},
+ {school:"ΕΠΑΛ Πρέβεζας",city:"Πρέβεζα, Ελλάδα",lat:38.96,lng:20.75,promise:"We promise to speak up safely when we witness bullying.",action:"Συμβάλλουμε στη δημιουργία και διάχυση ψηφιακού υλικού κατά του εκφοβισμού.",language:"English"}
+];
+let records;try{records=JSON.parse(localStorage.getItem("kindnessMapRecords")||"null")||initial}catch(e){records=initial}
+let chosen=null,markers=[];
+const map=new maplibregl.Map({container:"map",style:"https://tiles.openfreemap.org/styles/liberty",center:[18,28],zoom:1.65,attributionControl:true});
+map.addControl(new maplibregl.NavigationControl({showCompass:true}),"top-left");
+map.addControl(new maplibregl.FullscreenControl(),"top-right");
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function clearMarkers(){markers.forEach(m=>m.remove());markers=[]}
+function render(){
+ clearMarkers();
+ records.forEach(r=>{
+  const el=document.createElement("div");el.className="heart-marker";el.textContent="❤️";el.title=r.school;
+  const popup=new maplibregl.Popup({offset:22,maxWidth:"290px"}).setHTML(`<b>${esc(r.school)}</b><br><small>${esc(r.city)}</small><hr><b>Η υπόσχεσή μας</b><br>${esc(r.promise)}<br><br><b>Η πράξη καλοσύνης μας</b><br>${esc(r.action)}`);
+  const marker=new maplibregl.Marker({element:el,anchor:"bottom"}).setLngLat([r.lng,r.lat]).setPopup(popup).addTo(map);markers.push(marker);
+ });
+ document.getElementById("count").textContent=records.length;
+ document.getElementById("entries").innerHTML=records.map(r=>`<article class="entry"><strong>${esc(r.school)}</strong><small>${esc(r.city)}</small><p>${esc(r.promise)}</p><small><b>Πράξη:</b> ${esc(r.action)}</small></article>`).join("");
+}
+map.on("click",e=>{
+ chosen=e.lngLat;
+ document.getElementById("coords").textContent=`Επιλεγμένη θέση: ${e.lngLat.lat.toFixed(4)}°, ${e.lngLat.lng.toFixed(4)}°`;
+ if(window.selectionMarker)window.selectionMarker.remove();
+ const el=document.createElement("div");el.className="heart-marker";el.textContent="📍";
+ window.selectionMarker=new maplibregl.Marker({element:el}).setLngLat([chosen.lng,chosen.lat]).addTo(map);
+});
+document.getElementById("schoolForm").addEventListener("submit",e=>{
+ e.preventDefault();if(!chosen){alert("Κάνε πρώτα κλικ στον χάρτη για να επιλέξεις τη θέση του σχολείου.");return;}
+ records.push({school:document.getElementById("school").value.trim(),city:document.getElementById("city").value.trim(),promise:document.getElementById("promise").value.trim(),action:document.getElementById("action").value.trim(),language:document.getElementById("language").value,lat:chosen.lat,lng:chosen.lng});
+ try{localStorage.setItem("kindnessMapRecords",JSON.stringify(records))}catch(err){}
+ render();e.target.reset();chosen=null;if(window.selectionMarker){window.selectionMarker.remove();window.selectionMarker=null}
+ document.getElementById("coords").textContent="Η καταχώριση προστέθηκε. Επίλεξε νέα θέση για άλλο σχολείο.";
+});
+document.getElementById("export").addEventListener("click",()=>{
+ const blob=new Blob([JSON.stringify(records,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="map-of-kindness-entries.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+map.on("load",render);
+</script>
+</body></html>
